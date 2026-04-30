@@ -31,7 +31,7 @@
 
 @layer components {
   .glass-card {
-    @apply bg-white/70 backdrop-blur-[24px] border-[1.5px] border-white/40 rounded-3xl shadow-[0_8px_32px_rgba(0,96,100,0.06)];
+    @apply bg-white/70 backdrop-blur-[24px] border-[1.5px] border-white/40 rounded-2xl sm:rounded-3xl shadow-[0_8px_32px_rgba(0,96,100,0.06)];
   }
   
   .glass-ghost {
@@ -39,23 +39,32 @@
   }
   
   .solid-card {
-    @apply bg-white/70 backdrop-blur-[24px] border-[1.5px] border-white/40 rounded-3xl shadow-[0_8px_32px_rgba(0,96,100,0.06)];
+    @apply bg-white/70 backdrop-blur-[24px] border-[1.5px] border-white/40 rounded-2xl sm:rounded-3xl shadow-[0_8px_32px_rgba(0,96,100,0.06)];
   }
 
   .btn-primary {
-    @apply bg-gradient-to-br from-primary to-primary-container text-white rounded-2xl font-medium shadow-[0_8px_32px_rgba(0,96,100,0.06)] px-6 py-3 transition hover:opacity-90;
+    @apply inline-flex items-center justify-center bg-gradient-to-br from-primary to-primary-container text-white rounded-2xl font-medium shadow-[0_8px_32px_rgba(0,96,100,0.06)] px-4 py-2.5 text-sm sm:px-6 sm:py-3 sm:text-base transition hover:opacity-90;
   }
 
   .btn-secondary {
-    @apply bg-white/50 backdrop-blur-[24px] text-primary rounded-2xl font-medium border-[1.5px] border-white/40 px-6 py-3 transition hover:bg-white/60 shadow-[0_8px_32px_rgba(0,96,100,0.06)];
+    @apply inline-flex items-center justify-center bg-white/50 backdrop-blur-[24px] text-primary rounded-2xl font-medium border-[1.5px] border-white/40 px-4 py-2.5 text-sm sm:px-6 sm:py-3 sm:text-base transition hover:bg-white/60 shadow-[0_8px_32px_rgba(0,96,100,0.06)];
   }
 
   .btn-tertiary {
-    @apply bg-transparent text-primary rounded-2xl font-bold px-6 py-3 transition hover:bg-primary/5;
+    @apply inline-flex items-center justify-center bg-transparent text-primary rounded-2xl font-bold px-4 py-2.5 text-sm sm:px-6 sm:py-3 sm:text-base transition hover:bg-primary/5;
   }
   
   .input-field {
-    @apply bg-[#e3e8ef] rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary/50 px-5 py-4 text-[#171c1f] placeholder:text-gray-500 transition-shadow;
+    @apply bg-[#e3e8ef] rounded-2xl border-none outline-none focus:ring-2 focus:ring-primary/50 px-4 py-3 text-sm sm:px-5 sm:py-4 sm:text-base text-[#171c1f] placeholder:text-gray-500 transition-shadow;
+  }
+
+  select.input-field {
+    @apply appearance-none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23171c1f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-position: right 1.25rem center;
+    background-repeat: no-repeat;
+    background-size: 1.25em 1.25em;
+    padding-right: 3.5rem;
   }
 }
 

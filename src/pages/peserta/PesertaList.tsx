@@ -45,11 +45,11 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-display font-semibold tracking-tight text-[#171c1f] capitalize mb-1">Data Peserta {tipe}</h2>
-          <p className="text-sm text-gray-500">Kelola dan lihat profil peserta program {tipe}.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Data Peserta {tipe}</h2>
+          <p className="mt-1 sm:mt-2 text-[#4f606b] font-medium text-sm sm:text-lg">Kelola dan lihat profil peserta program {tipe}.</p>
         </div>
         <button onClick={handleExport} className="btn-secondary group">
           <Download className="w-5 h-5 mr-2 text-primary group-hover:text-primary-container" />

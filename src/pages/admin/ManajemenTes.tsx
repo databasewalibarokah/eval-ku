@@ -96,19 +96,19 @@ export default function ManajemenTes() {
 
   if (editingTesId && formData) {
     return (
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl md:text-2xl font-display font-bold tracking-tight text-[#171c1f]">{editingTesId === "new" ? "Buat Tes Baru" : "Edit Tes"}</h2>
-          <div className="flex gap-3">
-            <button onClick={() => setEditingTesId(null)} className="btn-secondary shadow border-[#bdc8cb]/30 flex items-center"><X className="w-4 h-4 mr-2"/> Batal</button>
-            <button onClick={handleSave} className="btn-primary flex items-center"><Save className="w-4 h-4 mr-2"/> Simpan Tes</button>
+      <div className="space-y-4 sm:space-y-6">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">{editingTesId === "new" ? "Buat Tes Baru" : "Edit Tes"}</h2>
+          <div className="flex gap-2 sm:gap-3">
+            <button onClick={() => setEditingTesId(null)} className="btn-secondary shadow border-[#bdc8cb]/30 flex items-center text-sm"><X className="w-4 h-4 mr-1.5"/> Batal</button>
+            <button onClick={handleSave} className="btn-primary flex items-center text-sm"><Save className="w-4 h-4 mr-1.5"/> Simpan Tes</button>
           </div>
         </div>
 
-        <div className="glass-card p-6 md:p-8 space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-5">
-              <h3 className="font-display font-medium text-lg text-primary border-b border-[#bdc8cb]/30 pb-2">Informasi Dasar</h3>
+        <div className="glass-card p-4 sm:p-6 md:p-8 space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
+            <div className="space-y-4 sm:space-y-5">
+              <h3 className="font-display font-medium text-base sm:text-lg text-primary border-b border-[#bdc8cb]/30 pb-2">Informasi Dasar</h3>
               <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Nama Tes</label><input type="text" className="input-field w-full" value={formData.nama} onChange={e => setFormData({...formData, nama: e.target.value})} placeholder="Masukkan nama tes" /></div>
               <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Deskripsi</label><textarea className="input-field w-full min-h-[100px] resize-y" value={formData.deskripsi} onChange={e => setFormData({...formData, deskripsi: e.target.value})} placeholder="Penjelasan singkat mengenai tes ini" /></div>
               <div className="flex items-center gap-3 bg-[#f0f4f8] border border-[#bdc8cb]/30 p-3 rounded-xl">
@@ -117,17 +117,17 @@ export default function ManajemenTes() {
               </div>
             </div>
 
-            <div className="space-y-5">
-              <h3 className="font-display font-medium text-lg text-primary border-b border-[#bdc8cb]/30 pb-2">Sistem Penilaian</h3>
+            <div className="space-y-4 sm:space-y-5">
+              <h3 className="font-display font-medium text-base sm:text-lg text-primary border-b border-[#bdc8cb]/30 pb-2">Sistem Penilaian</h3>
               <div className="flex gap-4 p-1 bg-[#f0f4f8] rounded-xl border border-[#bdc8cb]/30 w-fit">
                 <label className={`cursor-pointer px-4 py-2 text-sm font-bold rounded-lg transition ${formData.tipe_penilaian==='berbobot' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-[#171c1f]'}`}><input type="radio" className="hidden" name="tipe_penilaian" checked={formData.tipe_penilaian==='berbobot'} onChange={()=>setFormData({...formData, tipe_penilaian: 'berbobot'})} /> Berbobot</label>
                 <label className={`cursor-pointer px-4 py-2 text-sm font-bold rounded-lg transition ${formData.tipe_penilaian==='statis' ? 'bg-primary text-white shadow-sm' : 'text-gray-500 hover:text-[#171c1f]'}`}><input type="radio" className="hidden" name="tipe_penilaian" checked={formData.tipe_penilaian==='statis'} onChange={()=>setFormData({...formData, tipe_penilaian: 'statis'})} /> Statis (Rata-rata)</label>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Batas Lulus</label><input type="number" step="0.1" className="input-field w-full" value={formData.batas_kelulusan} onChange={e => setFormData({...formData, batas_kelulusan: Number(e.target.value)})} /></div>
-                {formData.tipe_penilaian === 'berbobot' && <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Pembagi Final</label><input type="number" step="0.1" className="input-field w-full" value={formData.pembagi_final} onChange={e => setFormData({...formData, pembagi_final: Number(e.target.value)})} /></div>}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+<div className="grid grid-cols-2 gap-3 sm:gap-4">
+                 <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Batas Lulus</label><input type="number" step="0.1" className="input-field w-full" value={formData.batas_kelulusan} onChange={e => setFormData({...formData, batas_kelulusan: Number(e.target.value)})} /></div>
+                 {formData.tipe_penilaian === 'berbobot' && <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Pembagi Final</label><input type="number" step="0.1" className="input-field w-full" value={formData.pembagi_final} onChange={e => setFormData({...formData, pembagi_final: Number(e.target.value)})} /></div>}
+               </div>
+               <div className="grid grid-cols-2 gap-3 sm:gap-4">
                 <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Label Lulus</label><input type="text" className="input-field w-full" value={formData.label_lulus} onChange={e => setFormData({...formData, label_lulus: e.target.value})} placeholder="Lulus" /></div>
                 <div><label className="block text-sm font-semibold mb-1.5 text-gray-600">Label Tidak Lulus</label><input type="text" className="input-field w-full" value={formData.label_tidak_lulus} onChange={e => setFormData({...formData, label_tidak_lulus: e.target.value})} placeholder="Tidak Lulus" /></div>
               </div>
@@ -156,9 +156,9 @@ export default function ManajemenTes() {
             </div>
           </div>
           
-          <div className="space-y-5 pt-8 border-t border-[#bdc8cb]/30">
-            <div className="flex justify-between items-center">
-              <h3 className="font-display font-bold text-lg text-[#171c1f]">Daftar Pertanyaan</h3>
+          <div className="space-y-4 pt-6 sm:pt-8 border-t border-[#bdc8cb]/30">
+            <div className="flex justify-between items-center gap-2">
+              <h3 className="font-display font-bold text-base sm:text-lg text-[#171c1f]">Daftar Pertanyaan</h3>
               <button onClick={addPertanyaan} className="btn-secondary shadow border-[#bdc8cb]/30 py-1.5 text-sm inline-flex items-center"><Plus className="w-4 h-4 mr-1.5"/> Tambah Soal</button>
             </div>
             
@@ -171,8 +171,8 @@ export default function ManajemenTes() {
 
             <div className="space-y-4">
               {formData.pertanyaan?.map((p, i) => (
-                <div key={p.id} className="solid-card shadow-sm border border-[#bdc8cb]/20 p-5 flex gap-4 transition-all duration-300">
-                  <div className="font-display font-bold text-primary text-xl pt-1 min-w-[2rem]">{i+1}.</div>
+                <div key={p.id} className="solid-card shadow-sm border border-[#bdc8cb]/20 p-4 sm:p-5 flex flex-col sm:flex-row gap-3 sm:gap-4 transition-all duration-300">
+                  <div className="font-display font-bold text-primary text-lg sm:text-xl pt-0 sm:pt-1 min-w-[2rem]">{i+1}.</div>
                   <div className="flex-1 space-y-4">
                     <input type="text" className="input-field w-full font-bold text-base h-11" placeholder="Pertanyaan Utama" value={p.teks_utama} onChange={e=>updatePertanyaan(p.id, {teks_utama: e.target.value})} />
                     <textarea className="input-field w-full text-sm min-h-[80px]" placeholder="Sub Pertanyaan / Keterangan Tambahan (Opsional)" value={p.teks_sub || ""} onChange={e=>updatePertanyaan(p.id, {teks_sub: e.target.value})} />
@@ -204,11 +204,11 @@ export default function ManajemenTes() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-display font-semibold tracking-tight text-[#171c1f] mb-1">Manajemen Tes</h2>
-          <p className="text-gray-500 font-medium">Konfigurasi struktur tes, pertanyaan, dan sistem penilaian.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Manajemen Tes</h2>
+          <p className="mt-1 sm:mt-2 text-[#4f606b] font-medium text-sm sm:text-lg">Konfigurasi struktur tes, pertanyaan, dan sistem penilaian.</p>
         </div>
         <div className="flex p-1 bg-white/80 backdrop-blur border border-[#bdc8cb]/30 shadow-sm rounded-xl self-start">
           <button onClick={() => setActiveTab("evaluasi")} className={`px-5 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${activeTab === "evaluasi" ? "bg-primary text-white shadow-sm" : "text-gray-500 hover:text-[#171c1f]"}`}>Evaluasi</button>
@@ -216,17 +216,17 @@ export default function ManajemenTes() {
         </div>
       </div>
 
-      <div className="glass-card p-6 md:p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl md:text-2xl font-display font-bold text-[#171c1f] capitalize">Daftar Tes {activeTab}</h3>
+      <div className="glass-card p-4 sm:p-6 md:p-8">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-display font-bold text-[#171c1f] capitalize">Daftar Tes {activeTab}</h3>
           <button onClick={startCreate} className="btn-primary inline-flex items-center py-2 shadow-sm"><Plus className="w-4 h-4 mr-2" />Buat Tes</button>
         </div>
 
         <div className="space-y-4">
           {testsForTab.map((t) => (
-            <div key={t.id} className={`solid-card flex items-center justify-between p-5 border border-[#bdc8cb]/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-lg ${t.is_active ? '' : 'opacity-60 saturate-50'}`}>
-              <div>
-                <h4 className="text-lg font-display font-bold text-[#171c1f] flex items-center gap-3">
+<div key={t.id} className={`solid-card flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 border border-[#bdc8cb]/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-lg gap-3 sm:gap-0 ${t.is_active ? '' : 'opacity-60 saturate-50'}`}>
+               <div>
+                 <h4 className="text-base sm:text-lg font-display font-bold text-[#171c1f] flex items-center gap-2 sm:gap-3">
                   {t.nama}
                   {!t.is_active && <span className="text-xs font-sans font-bold tracking-wide uppercase bg-error/10 text-error px-2.5 py-1 rounded-full border border-error/20">Nonaktif</span>}
                 </h4>

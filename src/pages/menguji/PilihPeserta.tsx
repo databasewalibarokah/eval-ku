@@ -62,11 +62,11 @@ export default function PilihPeserta() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-display font-semibold tracking-tight text-[#171c1f] capitalize mb-1">Pilih Peserta {tipe}</h2>
-          <p className="text-gray-500 text-sm">Cari peserta yang sudah ada atau daftarkan peserta baru.</p>
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold tracking-tight text-[#171c1f] capitalize mb-1">Pilih Peserta {tipe}</h2>
+          <p className="text-gray-500 text-xs sm:text-sm">Cari peserta yang sudah ada atau daftarkan peserta baru.</p>
         </div>
         <button
           onClick={() => setIsNewModalOpen(true)}
@@ -92,21 +92,21 @@ export default function PilihPeserta() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredPeserta.map(p => {
           const d = daerah.find(x => x.id === p.daerah_id);
           return (
             <div 
               key={p.id} 
               onClick={() => navigate(`/menguji/peserta/${p.id}`)}
-              className="solid-card p-6 cursor-pointer hover:border-primary/50 hover:shadow-lg border border-transparent shadow-sm hover:-translate-y-1 transition duration-300"
+              className="solid-card p-4 sm:p-6 cursor-pointer hover:border-primary/50 hover:shadow-lg border border-transparent shadow-sm hover:-translate-y-1 transition duration-300"
             >
-              <div className="flex items-start space-x-4">
-                <div className="p-3 bg-primary/10 border border-primary/20 rounded-xl">
-                  <UserCircle className="h-8 w-8 text-primary" />
+              <div className="flex items-start space-x-3 sm:space-x-4">
+                <div className="p-2.5 sm:p-3 bg-primary/10 border border-primary/20 rounded-xl">
+                  <UserCircle className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-display font-bold text-[#171c1f]">{p.nama}</h3>
+                  <h3 className="text-base sm:text-lg font-display font-bold text-[#171c1f]">{p.nama}</h3>
                   <div className="flex items-center text-sm text-gray-500 mt-1.5 font-medium">
                     <MapPin className="w-3.5 h-3.5 mr-1.5 text-primary opacity-70" />
                     {d?.nama || "-"}
@@ -127,10 +127,10 @@ export default function PilihPeserta() {
       {/* Modal Peserta Baru */}
       {isNewModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm overflow-y-auto">
-          <div className="glass-card shadow-2xl max-w-3xl w-full p-6 md:p-10 my-8 animate-in zoom-in-95 duration-300">
-            <h3 className="text-2xl md:text-3xl font-display font-semibold text-[#171c1f] mb-6 sm:mb-8 capitalize">Daftar Peserta {tipe} Baru</h3>
+          <div className="glass-card shadow-2xl max-w-3xl w-full p-5 sm:p-6 md:p-10 my-4 sm:my-8 animate-in zoom-in-95 duration-300">
+            <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-[#171c1f] mb-4 sm:mb-6 md:mb-8 capitalize">Daftar Peserta {tipe} Baru</h3>
             
-            <form onSubmit={handleCreatePeserta} className="space-y-8">
+            <form onSubmit={handleCreatePeserta} className="space-y-5 sm:space-y-8">
               {/* Biodata Wajib */}
               <div className="space-y-5">
                 <h4 className="font-display font-medium text-lg text-primary border-b border-[#bdc8cb]/30 pb-2">Informasi Dasar</h4>

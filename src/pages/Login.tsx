@@ -46,12 +46,12 @@ export default function Login() {
         <div className="w-[400px] h-[400px] bg-[#cce8e4]/50 rounded-full blur-[80px] absolute bottom-[-50px] right-[-50px]" />
       </div>
 
-      <div className="max-w-md w-full space-y-10 glass-card p-10 z-10">
+      <div className="max-w-md w-full space-y-6 sm:space-y-10 glass-card p-6 sm:p-10 z-10">
         <div>
-          <h2 className="mt-2 text-center text-5xl font-extrabold text-primary font-display tracking-tight">
+          <h2 className="mt-2 text-center text-3xl sm:text-5xl font-extrabold text-primary font-display tracking-tight">
             EvalKU
           </h2>
-          <p className="text-center text-sm text-gray-500 mt-3 font-medium tracking-wide uppercase">
+          <p className="text-center text-xs sm:text-sm text-gray-500 mt-2 sm:mt-3 font-medium tracking-wide uppercase">
             Sistem Evaluasi dan Seleksi
           </p>
         </div>
@@ -62,8 +62,8 @@ export default function Login() {
           </div>
         )}
 
-        <form className="mt-8 space-y-8" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-6">
+        <form className="mt-6 sm:mt-8 space-y-6 sm:space-y-8" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4 sm:space-y-6">
             <div>
               <label className="block text-sm font-semibold text-[#171c1f] mb-2 font-display ml-1">
                 Email

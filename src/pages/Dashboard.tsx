@@ -17,11 +17,11 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col md:flex-row items-baseline justify-between gap-6">
+    <div className="space-y-6 sm:space-y-10">
+      <div className="flex flex-col md:flex-row items-baseline justify-between gap-4 sm:gap-6">
         <div>
-          <h2 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Overview</h2>
-          <p className="mt-2 text-[#4f606b] font-medium text-lg">Your sanctuary for insights and evaluations.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Overview</h2>
+          <p className="mt-1 sm:mt-2 text-[#4f606b] font-medium text-sm sm:text-lg">Your sanctuary for insights and evaluations.</p>
         </div>
         <div className="flex gap-4">
           <Link 
@@ -33,19 +33,19 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4 pt-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 pt-2 sm:pt-4">
         {stats.map((stat) => (
-          <div key={stat.name} className="relative overflow-hidden solid-card p-6 sm:p-8 group hover:-translate-y-1 transition-transform duration-300">
+          <div key={stat.name} className="relative overflow-hidden solid-card p-4 sm:p-6 sm:p-8 group hover:-translate-y-1 transition-transform duration-300">
             <dt>
-              <div className={`absolute rounded-2xl p-4 transition-colors ${stat.name.includes('Lulus') ? 'bg-[#006430]' : 'bg-primary'} group-hover:opacity-90`}>
-                <stat.icon className="h-6 w-6 text-white" aria-hidden="true" />
+              <div className={`absolute rounded-xl sm:rounded-2xl p-2.5 sm:p-4 transition-colors ${stat.name.includes('Lulus') ? 'bg-[#006430]' : 'bg-primary'} group-hover:opacity-90`}>
+                <stat.icon className="h-4 w-4 sm:h-6 sm:w-6 text-white" aria-hidden="true" />
               </div>
-              <p className="ml-20 truncate text-sm font-bold text-gray-500 uppercase tracking-widest font-display">
+              <p className="ml-10 sm:ml-20 truncate text-[10px] sm:text-sm font-bold text-gray-500 uppercase tracking-widest font-display">
                 {stat.name}
               </p>
             </dt>
-            <dd className="ml-20 flex items-baseline pb-2 mt-2">
-              <p className="text-3xl md:text-4xl font-display font-extrabold text-[#171c1f]">
+            <dd className="ml-10 sm:ml-20 flex items-baseline pb-1 sm:pb-2 mt-1 sm:mt-2">
+              <p className="text-xl sm:text-3xl md:text-4xl font-display font-extrabold text-[#171c1f]">
                 {stat.value}
               </p>
             </dd>

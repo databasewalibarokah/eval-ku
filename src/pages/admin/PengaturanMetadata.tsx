@@ -88,11 +88,11 @@ export default function PengaturanMetadata() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h2 className="text-2xl md:text-3xl font-display font-semibold tracking-tight text-[#171c1f] mb-1">Pengaturan Metadata Biodata</h2>
-          <p className="text-gray-500 text-sm">Atur field kustom tambahan untuk form registrasi peserta.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Pengaturan Metadata Biodata</h2>
+          <p className="mt-1 sm:mt-2 text-[#4f606b] font-medium text-sm sm:text-lg">Atur field kustom tambahan untuk form registrasi peserta.</p>
         </div>
         <div className="flex p-1 bg-white/80 backdrop-blur shadow-sm border border-[#bdc8cb]/30 rounded-xl self-start">
           <button
@@ -110,9 +110,9 @@ export default function PengaturanMetadata() {
         </div>
       </div>
 
-      <div className="glass-card p-6 md:p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl md:text-2xl font-display font-bold text-[#171c1f] capitalize">Field Metadata {activeTab}</h3>
+      <div className="glass-card p-4 sm:p-6 md:p-8">
+        <div className="flex justify-between items-center mb-4 sm:mb-6">
+          <h3 className="text-lg sm:text-xl md:text-2xl font-display font-bold text-[#171c1f] capitalize">Field Metadata {activeTab}</h3>
           <button
             onClick={() => handleOpenModal()}
             className="btn-primary inline-flex items-center py-2"
@@ -132,14 +132,14 @@ export default function PengaturanMetadata() {
         ) : (
           <div className="space-y-4">
             {fields.map((f, idx) => (
-              <div key={f.id} className="solid-card flex items-center justify-between p-5 border border-[#bdc8cb]/20 transition-transform duration-300 hover:-translate-y-0.5">
-                <div className="flex items-center space-x-5">
+              <div key={f.id} className="solid-card flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 sm:p-5 border border-[#bdc8cb]/20 transition-transform duration-300 hover:-translate-y-0.5 gap-3 sm:gap-0">
+                <div className="flex items-center space-x-3 sm:space-x-5">
                   <div className="flex flex-col space-y-1 text-gray-500">
                     <button onClick={() => handleMove(idx, -1)} disabled={idx === 0} className="hover:text-primary transition-colors disabled:opacity-30 disabled:hover:text-gray-500 p-0.5"><ArrowUp className="w-5 h-5"/></button>
                     <button onClick={() => handleMove(idx, 1)} disabled={idx === fields.length - 1} className="hover:text-primary transition-colors disabled:opacity-30 disabled:hover:text-gray-500 p-0.5"><ArrowDown className="w-5 h-5"/></button>
                   </div>
                   <div>
-                    <h4 className="font-display font-bold text-lg text-[#171c1f] mb-1.5">{f.label} <span className="text-gray-500 text-sm font-mono font-medium ml-2">({f.key})</span></h4>
+                    <h4 className="font-display font-bold text-sm sm:text-lg text-[#171c1f] mb-1 sm:mb-1.5">{f.label} <span className="text-gray-500 text-xs sm:text-sm font-mono font-medium ml-1 sm:ml-2">({f.key})</span></h4>
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="px-2.5 py-1 bg-[#f0f4f8] border border-[#bdc8cb]/30 rounded-md text-xs font-bold text-gray-600">{f.type === 'text' ? 'Teks Pendek' : f.type === 'number' ? 'Angka' : 'Dropdown'}</span>
                       {f.is_required && <span className="px-2.5 py-1 bg-error/10 border border-error/20 text-error rounded-md text-xs font-bold uppercase tracking-wide">Wajib</span>}

@@ -53,11 +53,11 @@ export default function ManajemenUser() {
   };
 
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col md:flex-row items-baseline justify-between gap-6">
+    <div className="space-y-6 sm:space-y-10">
+      <div className="flex flex-col md:flex-row items-baseline justify-between gap-4 sm:gap-6">
         <div>
-          <h2 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Manajemen User</h2>
-          <p className="mt-2 text-[#4f606b] font-medium text-lg">Kelola pengguna yang dapat mengakses aplikasi.</p>
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Manajemen User</h2>
+          <p className="mt-1 sm:mt-2 text-[#4f606b] font-medium text-sm sm:text-lg">Kelola pengguna yang dapat mengakses aplikasi.</p>
         </div>
         <button
           onClick={() => handleOpenModal()}

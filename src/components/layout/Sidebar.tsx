@@ -36,13 +36,13 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
   return (
     <div className="h-full flex flex-col bg-[#f6fafe]">
-      <div className="flex items-center px-8 py-10">
-        <h1 className="text-3xl font-display font-extrabold text-primary tracking-tight">
-          Luminous
+      <div className="flex items-center px-6 py-8 sm:px-8 sm:py-10">
+        <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-primary tracking-tight">
+          EvalKU
         </h1>
       </div>
       
-      <div className="flex-1 overflow-y-auto px-6 py-2">
+      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-2">
         <nav className="space-y-2">
           {publicLinks.map((item) => (
             <NavLink
@@ -62,8 +62,8 @@ export default function Sidebar({ onClose }: SidebarProps) {
           ))}
           
           {isAdmin && (
-            <div className="mt-12 pt-8 border-t border-[#dfe3e7]/50 relative">
-              <h3 className="px-4 text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 font-display">
+            <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-[#dfe3e7]/50 relative">
+              <h3 className="px-3 sm:px-4 text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 sm:mb-4 font-display">
                 System
               </h3>
               <div className="space-y-2">
@@ -73,13 +73,13 @@ export default function Sidebar({ onClose }: SidebarProps) {
                   to={item.href}
                   onClick={onClose}
                   className={({ isActive }) => cn(
-                    "group flex items-center px-4 py-3 text-[15px] font-semibold rounded-2xl transition-all",
+"group flex items-center px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-[15px] font-semibold rounded-xl sm:rounded-2xl transition-all",
                     isActive 
                       ? "bg-primary text-white shadow-[0_8px_32px_rgba(0,96,100,0.15)]" 
                       : "text-[#171c1f] hover:bg-[#dfe3e7] hover:text-primary"
                   )}
                 >
-                  <item.icon className="mr-4 h-5 w-5 flex-shrink-0" />
+<item.icon className="mr-3 sm:mr-4 h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                   {item.name}
                 </NavLink>
               ))}
