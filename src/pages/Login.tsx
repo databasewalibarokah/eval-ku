@@ -31,6 +31,7 @@ export default function Login() {
     });
     
     if (signInError) {
+      console.log(signInError)
       setError("Email atau password salah.");
       setLoading(false);
       return;

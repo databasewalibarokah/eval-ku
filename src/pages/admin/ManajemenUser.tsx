@@ -48,12 +48,19 @@ export default function ManajemenUser() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     const { password, ...userData } = formData;
+    
+    let result;
     if (editingUser) {
-      await updateUser(editingUser.id, userData, password || undefined);
+      result = await updateUser(editingUser.id, userData, password || undefined);
     } else {
-      await addUser({ ...userData, is_active: true }, password);
+      result = await addUser({ ...userData, is_active: true }, password);
     }
-    setIsModalOpen(false);
+    
+    if (result && result.success === false) {
+      alert(`Gagal: ${result.error}`);
+    } else {
+      setIsModalOpen(false);
+    }
   };
 
   return (
