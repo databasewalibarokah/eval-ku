@@ -163,37 +163,53 @@ export default function PilihPeserta() {
 
               {/* Dinamis Metadata */}
               {metadataFields.length > 0 && (
-                <div className="space-y-5">
+                <div className="space-y-6">
                   <h4 className="font-display font-medium text-lg text-primary border-b border-[#bdc8cb]/30 pb-2 mt-2">Informasi Tambahan <span className="text-sm font-sans font-normal opacity-70 ml-2">(Sesuai Konfigurasi Admin)</span></h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {metadataFields.map(f => (
-                      <div key={f.id} className={f.type === 'text' ? 'md:col-span-2' : ''}>
-                        <label className="block text-sm font-semibold mb-1.5 text-gray-600">
-                          {f.label} {f.is_required && <span className="text-error">*</span>}
-                          {f.group && <span className="text-xs text-gray-500 font-medium ml-2">({f.group})</span>}
-                        </label>
-                        {f.type === 'select' ? (
-                          <select 
-                            required={f.is_required} 
-                            value={formData.metadata[f.key] || ""} 
-                            onChange={e=>setMetaField(f.key, e.target.value)}
-                            className="input-field w-full appearance-none"
-                          >
-                            <option value="">-- Pilih --</option>
-                            {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
-                          </select>
-                        ) : (
-                          <input 
-                            type={f.type} 
-                            required={f.is_required}
-                            value={formData.metadata[f.key] || ""}
-                            onChange={e=>setMetaField(f.key, f.type === 'number' ? Number(e.target.value) : e.target.value)}
-                            className="input-field w-full"
-                          />
+                  
+                  {(() => {
+                    const groupedFields = metadataFields.reduce((acc, field) => {
+                      const group = field.group || 'Umum';
+                      if (!acc[group]) acc[group] = [];
+                      acc[group].push(field);
+                      return acc;
+                    }, {} as Record<string, typeof metadataFields>);
+
+                    return Object.entries(groupedFields).map(([groupName, fields]) => (
+                      <div key={groupName} className="space-y-4">
+                        {(groupName !== 'Umum' || Object.keys(groupedFields).length > 1) && (
+                          <h5 className="font-display font-semibold text-[#171c1f] border-b border-gray-100 pb-1">{groupName}</h5>
                         )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          {fields.map(f => (
+                            <div key={f.id} className={f.type === 'text' ? 'md:col-span-2' : ''}>
+                              <label className="block text-sm font-semibold mb-1.5 text-gray-600">
+                                {f.label} {f.is_required && <span className="text-error">*</span>}
+                              </label>
+                              {f.type === 'select' ? (
+                                <select 
+                                  required={f.is_required} 
+                                  value={formData.metadata[f.key] || ""} 
+                                  onChange={e=>setMetaField(f.key, e.target.value)}
+                                  className="input-field w-full appearance-none"
+                                >
+                                  <option value="">-- Pilih --</option>
+                                  {f.options?.map(o => <option key={o} value={o}>{o}</option>)}
+                                </select>
+                              ) : (
+                                <input 
+                                  type={f.type} 
+                                  required={f.is_required}
+                                  value={formData.metadata[f.key] || ""}
+                                  onChange={e=>setMetaField(f.key, f.type === 'number' ? Number(e.target.value) : e.target.value)}
+                                  className="input-field w-full"
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    ));
+                  })()}
                 </div>
               )}
 
