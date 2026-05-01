@@ -25,7 +25,7 @@ export default function Login() {
     setError("");
     setLoading(true);
     
-    const { error: signInError } = await supabase.auth.signInWithPassword({
+    const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
       email: data.email,
       password: data.password,
     });
@@ -35,8 +35,14 @@ export default function Login() {
       setLoading(false);
       return;
     }
-    
-    navigate("/dashboard");
+
+    if (authData.session) {
+      // Small delay to allow onAuthStateChange to trigger and set loading state in store
+      // This helps the ProtectedRoute see the loading state correctly.
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 100);
+    }
   };
 
   return (

@@ -25,6 +25,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   initialize: () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
+        set({ isLoading: true });
         // Fetch user details from public.ku_users
         supabase
           .from('ku_users')
@@ -35,16 +36,17 @@ export const useAuthStore = create<AuthState>((set) => ({
             if (data && !error) {
               set({ user: data as User, isAuthenticated: true, isLoading: false });
             } else {
-              set({ isLoading: false });
+              set({ user: null, isAuthenticated: false, isLoading: false });
             }
           });
       } else {
-        set({ isLoading: false });
+        set({ user: null, isAuthenticated: false, isLoading: false });
       }
     });
 
     supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
+        set({ isLoading: true });
         supabase
           .from('ku_users')
           .select('*')
@@ -54,7 +56,7 @@ export const useAuthStore = create<AuthState>((set) => ({
             if (data && !error) {
               set({ user: data as User, isAuthenticated: true, isLoading: false });
             } else {
-              set({ isLoading: false });
+              set({ user: null, isAuthenticated: false, isLoading: false });
             }
           });
       } else {
