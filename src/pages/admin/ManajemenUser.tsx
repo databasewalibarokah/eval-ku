@@ -15,6 +15,7 @@ export default function ManajemenUser() {
     nama: "",
     nomor_telepon: "",
     role: "penguji" as "admin" | "penguji",
+    password: "",
   });
 
   const handleOpenModal = (user?: User) => {
@@ -25,6 +26,7 @@ export default function ManajemenUser() {
         nama: user.nama,
         nomor_telepon: user.nomor_telepon,
         role: user.role,
+        password: "", // Don't show existing password
       });
     } else {
       setEditingUser(null);
@@ -33,6 +35,7 @@ export default function ManajemenUser() {
         nama: "",
         nomor_telepon: "",
         role: "penguji",
+        password: "",
       });
     }
     setIsModalOpen(true);
@@ -44,10 +47,11 @@ export default function ManajemenUser() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const { password, ...userData } = formData;
     if (editingUser) {
-      await updateUser(editingUser.id, formData);
+      await updateUser(editingUser.id, userData, password || undefined);
     } else {
-      await addUser({ ...formData, is_active: true });
+      await addUser({ ...userData, is_active: true }, password);
     }
     setIsModalOpen(false);
   };
@@ -195,6 +199,14 @@ export default function ManajemenUser() {
                   <option value="penguji">Penguji</option>
                   <option value="admin">Admin</option>
                 </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold mb-2 ml-1 text-[#171c1f]">Password {editingUser && "(Kosongkan jika tidak diubah)"}</label>
+                <input 
+                  type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  className="w-full input-field"
+                  placeholder={editingUser ? "••••••••" : "Default: 12345678"}
+                />
               </div>
               
               <div className="mt-10 flex justify-end gap-3">

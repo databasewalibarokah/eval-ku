@@ -12,8 +12,8 @@ interface AppState {
 
   initStore: () => Promise<void>;
   
-  addUser: (user: Omit<User, 'id' | 'created_at'>) => Promise<void>;
-  updateUser: (id: string, updates: Partial<User>) => Promise<void>;
+  addUser: (user: Omit<User, 'id' | 'created_at'>, password?: string) => Promise<void>;
+  updateUser: (id: string, updates: Partial<User>, password?: string) => Promise<void>;
   
   addDaerah: (daerah: Omit<Daerah, 'id' | 'created_at'>) => Promise<void>;
   updateDaerah: (id: string, updates: Partial<Daerah>) => Promise<void>;
@@ -67,19 +67,50 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  addUser: async (u) => {
-    // Auth creation usually happens server-side, but if allowed:
-    // Actually we only update public.ku_users here OR admin inserts
-    // Normally admin creates auth user. For simplicity, just insert into public.ku_users if allowed.
-    // NOTE: This might fail if RLS requires auth.users insert first.
-    // Usually, you should use Supabase Admin API, but we'll try standard insert.
-    const { data } = await supabase.from('ku_users').insert([u]).select().single();
+  addUser: async (u, password) => {
+    // 1. Create Auth User
+    // Note: Since "Confirm Email" is disabled, this will be verified immediately.
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: u.email,
+      password: password || '12345678',
+    });
+
+    if (authError) {
+      console.error('Error creating auth user:', authError.message);
+      // If user already exists, we might still want to try inserting into public.ku_users 
+      // but we'd need their ID. Since we can't get it easily without admin API, 
+      // we'll stop here or handle as error.
+      return;
+    }
+
+    if (!authData.user) return;
+
+    // 2. Insert into public.ku_users
+    const { data } = await supabase.from('ku_users').insert([{
+      ...u,
+      id: authData.user.id
+    }]).select().single();
+
     if (data) {
       set({ users: [...get().users, data as User] });
     }
   },
 
-  updateUser: async (id, updates) => {
+  updateUser: async (id, updates, password) => {
+    // 1. Update Supabase Auth if email or password provided
+    // This requires Admin API (Service Role Key) to update OTHER users.
+    if (updates.email || password) {
+      const { error: authError } = await supabase.auth.admin.updateUserById(id, {
+        email: updates.email,
+        password: password
+      });
+      
+      if (authError) {
+        console.error('Error updating auth user:', authError.message);
+      }
+    }
+
+    // 2. Update public.ku_users
     const { data } = await supabase.from('ku_users').update(updates).eq('id', id).select().single();
     if (data) {
       set({ users: get().users.map(u => u.id === id ? (data as User) : u) });
