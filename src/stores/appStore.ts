@@ -27,6 +27,7 @@ interface AppState {
   
   addPeserta: (peserta: Omit<Peserta, 'id' | 'created_at'>) => Promise<Peserta | null>;
   updatePeserta: (id: string, updates: Partial<Peserta>) => Promise<void>;
+  deletePeserta: (id: string) => Promise<void>;
   
   addHasilTes: (hasil: Omit<HasilTes, 'id'>) => Promise<void>;
 }
@@ -192,6 +193,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { data } = await supabase.from('ku_peserta').update(updates).eq('id', id).select().single();
     if (data) {
       set({ peserta: get().peserta.map(p => p.id === id ? (data as Peserta) : p) });
+    }
+  },
+
+  deletePeserta: async (id) => {
+    // Delete related hasil tes first
+    await supabase.from('ku_hasil_tes').delete().eq('peserta_id', id);
+    const { error } = await supabase.from('ku_peserta').delete().eq('id', id);
+    if (!error) {
+      set({ 
+        peserta: get().peserta.filter(p => p.id !== id),
+        hasilTes: get().hasilTes.filter(h => h.peserta_id !== id)
+      });
     }
   },
 

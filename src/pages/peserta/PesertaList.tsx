@@ -1,13 +1,22 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppStore } from "../../stores/appStore";
-import { Search, MapPin, Calendar, Download } from "lucide-react";
+import { Search, MapPin, Calendar, Download, Trash2 } from "lucide-react";
+import ConfirmModal from "../../components/ConfirmModal";
 import { formatDateTime } from "../../lib/utils";
 import * as XLSX from "xlsx";
 
 export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) {
-  const { peserta, daerah, hasilTes } = useAppStore();
+  const { peserta, daerah, hasilTes, deletePeserta } = useAppStore();
   const [search, setSearch] = useState("");
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (deleteConfirmId) {
+      await deletePeserta(deleteConfirmId);
+      setDeleteConfirmId(null);
+    }
+  };
 
   const filtered = peserta.filter(p => 
     p.tipe_peserta === tipe && 
@@ -110,9 +119,17 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
-                      <Link to={`/peserta/detail/${p.id}`} className="btn-secondary py-1.5 px-4 text-xs inline-block">
-                        Lihat Detail
-                      </Link>
+                      <div className="flex justify-end gap-2">
+                        <Link to={`/peserta/detail/${p.id}`} className="btn-secondary py-1.5 px-4 text-xs">
+                          Lihat Detail
+                        </Link>
+                        <button 
+                          onClick={() => setDeleteConfirmId(p.id)}
+                          className="btn-secondary py-1.5 px-2 text-xs text-red-500 hover:text-red-700 border-red-200 hover:border-red-300 hover:bg-red-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -153,9 +170,17 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
                       <Calendar className="w-3.5 h-3.5 mr-1.5 text-primary opacity-80" />
                       {formatDateTime(p.created_at).split(" ")[0]}
                     </div>
-                    <Link to={`/peserta/detail/${p.id}`} className="btn-secondary py-1 px-3 text-xs w-auto">
-                      Detail
-                    </Link>
+                    <div className="flex gap-2">
+                      <Link to={`/peserta/detail/${p.id}`} className="btn-secondary py-1 px-3 text-xs w-auto">
+                        Detail
+                      </Link>
+                      <button 
+                        onClick={() => setDeleteConfirmId(p.id)}
+                        className="btn-secondary py-1 px-2 text-xs w-auto text-red-500 hover:text-red-700 border-red-200 hover:border-red-300 hover:bg-red-50"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -168,6 +193,15 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
           </div>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        onConfirm={handleDelete}
+        title="Hapus Peserta?"
+        message="Apakah Anda yakin ingin menghapus peserta ini? Semua data terkait (termasuk hasil tes) juga akan terhapus dan tidak dapat dikembalikan."
+        confirmText="Hapus"
+        variant="danger"
+      />
     </div>
   );
 }
