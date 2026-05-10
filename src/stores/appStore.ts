@@ -132,16 +132,22 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   addDaerah: async (d) => {
-    const { data } = await supabase.from('ku_daerah').insert([d]).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_daerah').insert([d]).select().single();
+    if (data && !error) {
       set({ daerah: [...get().daerah, data as Daerah] });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
   updateDaerah: async (id, updates) => {
-    const { data } = await supabase.from('ku_daerah').update(updates).eq('id', id).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_daerah').update(updates).eq('id', id).select().single();
+    if (data && !error) {
       set({ daerah: get().daerah.map(d => d.id === id ? (data as Daerah) : d) });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
@@ -149,27 +155,39 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { error } = await supabase.from('ku_daerah').delete().eq('id', id);
     if (!error) {
       set({ daerah: get().daerah.filter(d => d.id !== id) });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
   updateSettings: async (tipe, fields) => {
-    const { data } = await supabase.from('ku_settings').update({ metadata_fields: fields }).eq('tipe', tipe).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_settings').update({ metadata_fields: fields }).eq('tipe', tipe).select().single();
+    if (data && !error) {
       set({ settings: get().settings.map(s => s.tipe === tipe ? (data as Settings) : s) });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
   addTes: async (t) => {
-    const { data } = await supabase.from('ku_tes').insert([t]).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_tes').insert([t]).select().single();
+    if (data && !error) {
       set({ tes: [...get().tes, data as Tes] });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
   updateTes: async (id, updates) => {
-    const { data } = await supabase.from('ku_tes').update(updates).eq('id', id).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_tes').update(updates).eq('id', id).select().single();
+    if (data && !error) {
       set({ tes: get().tes.map(t => t.id === id ? (data as Tes) : t) });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
@@ -177,22 +195,31 @@ export const useAppStore = create<AppState>((set, get) => ({
     const { error } = await supabase.from('ku_tes').delete().eq('id', id);
     if (!error) {
       set({ tes: get().tes.filter(t => t.id !== id) });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
   addPeserta: async (p) => {
-    const { data } = await supabase.from('ku_peserta').insert([p]).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_peserta').insert([p]).select().single();
+    if (data && !error) {
       set({ peserta: [...get().peserta, data as Peserta] });
       return data as Peserta;
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
     return null;
   },
 
   updatePeserta: async (id, updates) => {
-    const { data } = await supabase.from('ku_peserta').update(updates).eq('id', id).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_peserta').update(updates).eq('id', id).select().single();
+    if (data && !error) {
       set({ peserta: get().peserta.map(p => p.id === id ? (data as Peserta) : p) });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
@@ -205,13 +232,19 @@ export const useAppStore = create<AppState>((set, get) => ({
         peserta: get().peserta.filter(p => p.id !== id),
         hasilTes: get().hasilTes.filter(h => h.peserta_id !== id)
       });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 
   addHasilTes: async (h) => {
-    const { data } = await supabase.from('ku_hasil_tes').insert([h]).select().single();
-    if (data) {
+    const { data, error } = await supabase.from('ku_hasil_tes').insert([h]).select().single();
+    if (data && !error) {
       set({ hasilTes: [...get().hasilTes, data as HasilTes] });
+    } else {
+      // TODO: Add proper error handling and UI notifications for Supabase failures
+      await get().initStore();
     }
   },
 }));
