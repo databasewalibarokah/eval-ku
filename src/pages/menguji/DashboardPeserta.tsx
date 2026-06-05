@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppStore } from "../../stores/appStore";
 import { UserCircle, MapPin, Phone, Briefcase, FileText, CheckCircle, ArrowLeft } from "lucide-react";
-import { formatDateTime } from "../../lib/utils";
 
 export default function DashboardPeserta() {
   const { id } = useParams<{ id: string }>();

@@ -1,7 +1,7 @@
 import { useState, FormEvent } from "react";
 import { useAppStore } from "../../stores/appStore";
 import { User } from "../../types";
-import { formatDateTime } from "../../lib/utils";
+import { formatDateTime, formatDate } from "../../lib/utils";
 import { Plus, Edit2, Ban, CheckCircle } from "lucide-react";
 
 export default function ManajemenUser() {
@@ -148,7 +148,7 @@ export default function ManajemenUser() {
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-[#bdc8cb]/10">
                 <div className="text-xs text-gray-500">
-                  {formatDateTime(user.created_at).split(" ")[0]}
+                  {formatDate(user.created_at)}
                 </div>
                 <div className="flex space-x-1">
                   <button onClick={() => handleOpenModal(user)} className="p-1.5 text-primary hover:bg-primary/5 rounded-full transition">

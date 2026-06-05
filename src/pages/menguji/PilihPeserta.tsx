@@ -3,22 +3,45 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAppStore } from "../../stores/appStore";
 import { useAuthStore } from "../../stores/authStore";
 import { Peserta } from "../../types";
-import { Search, Plus, UserCircle, MapPin } from "lucide-react";
+import { Search, Plus, UserCircle, MapPin, CalendarDays, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { formatDate } from "../../lib/utils";
 
 export default function PilihPeserta() {
   const { tipe } = useParams<{ tipe: string }>();
   const navigate = useNavigate();
-  const { peserta, daerah, settings, addPeserta } = useAppStore();
+  const { peserta, daerah, settings, addPeserta, hasilTes } = useAppStore();
   const { user } = useAuthStore();
   
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
+  const [duplicatePeserta, setDuplicatePeserta] = useState<Peserta | null>(null);
 
   // Filter peserta by tipe and search
-  const filteredPeserta = peserta.filter(p => 
-    p.tipe_peserta === tipe && 
-    (p.nama.toLowerCase().includes(search.toLowerCase()) || p.nomor_telepon.includes(search))
-  );
+  const filteredPeserta = peserta.filter(p => {
+    if (p.tipe_peserta !== tipe) return false;
+    
+    const matchSearch = p.nama.toLowerCase().includes(search.toLowerCase()) || p.nomor_telepon.includes(search);
+    if (!matchSearch) return false;
+    
+    if (dateFrom || dateTo) {
+      const created = new Date(p.created_at);
+      created.setHours(0, 0, 0, 0);
+      if (dateFrom) {
+        const from = new Date(dateFrom);
+        from.setHours(0, 0, 0, 0);
+        if (created < from) return false;
+      }
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        if (created > to) return false;
+      }
+    }
+    
+    return true;
+  });
 
   // Form State for new Peserta
   const [formData, setFormData] = useState({
@@ -37,8 +60,25 @@ export default function PilihPeserta() {
     e.preventDefault();
     if (!user) return;
 
+    const existing = peserta.find(p =>
+      p.nama.toLowerCase() === formData.nama.toLowerCase().trim() &&
+      p.daerah_id === formData.daerah_id &&
+      p.tipe_peserta === tipe
+    );
+
+    if (existing) {
+      setDuplicatePeserta(existing);
+      return;
+    }
+
+    await doCreatePeserta();
+  };
+
+  const doCreatePeserta = async () => {
+    if (!user) return;
+
     const newP = await addPeserta({
-      nama: formData.nama,
+      nama: formData.nama.trim(),
       usia: Number(formData.usia),
       daerah_id: formData.daerah_id,
       pekerjaan: formData.pekerjaan,
@@ -49,6 +89,7 @@ export default function PilihPeserta() {
     });
     
     setIsNewModalOpen(false);
+    setDuplicatePeserta(null);
     if(newP) {
       navigate(`/menguji/peserta/${newP.id}`);
     }
@@ -77,18 +118,53 @@ export default function PilihPeserta() {
         </button>
       </div>
 
-      <div className="glass-card p-4">
-        <div className="relative">
+      <div className="glass-card p-4 flex flex-col sm:flex-row gap-3 sm:gap-2">
+        <div className="relative flex-1 min-w-0">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
           <input
             type="text"
-            className="input-field pl-11"
+            className="input-field pl-11 w-full"
             placeholder="Cari nama atau nomor telepon peserta..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <CalendarDays className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="date"
+              className="input-field pl-9 text-sm"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              title="Tanggal mulai"
+            />
+          </div>
+          <span className="text-gray-400 text-sm">s/d</span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <CalendarDays className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="date"
+              className="input-field pl-9 text-sm"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              title="Tanggal akhir"
+            />
+          </div>
+          {(search || dateFrom || dateTo) && (
+            <button
+              onClick={() => { setSearch(""); setDateFrom(""); setDateTo(""); }}
+              className="text-xs text-gray-500 hover:text-red-500 px-2 py-1 rounded transition-colors whitespace-nowrap"
+            >
+              Reset
+            </button>
+          )}
         </div>
       </div>
 
@@ -117,7 +193,7 @@ export default function PilihPeserta() {
             </div>
           );
         })}
-        {filteredPeserta.length === 0 && search && (
+        {filteredPeserta.length === 0 && (search || dateFrom || dateTo) && (
           <div className="col-span-full text-center py-16 text-gray-500 border border-dashed border-[#bdc8cb]/30 rounded-xl bg-[#f0f4f8]/50">
             Peserta tidak ditemukan. Silakan daftarkan peserta baru.
           </div>
@@ -125,7 +201,7 @@ export default function PilihPeserta() {
       </div>
 
       {/* Modal Peserta Baru */}
-      {isNewModalOpen && (
+      {isNewModalOpen && !duplicatePeserta && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 backdrop-blur-sm overflow-y-auto">
           <div className="glass-card shadow-2xl max-w-3xl w-full p-5 sm:p-6 md:p-10 my-4 sm:my-8 animate-in zoom-in-95 duration-300">
             <h3 className="text-xl sm:text-2xl md:text-3xl font-display font-semibold text-[#171c1f] mb-4 sm:mb-6 md:mb-8 capitalize">Daftar Peserta {tipe} Baru</h3>
@@ -221,6 +297,98 @@ export default function PilihPeserta() {
           </div>
         </div>
       )}
+
+      {/* Modal Duplicate Peserta */}
+      {duplicatePeserta && (() => {
+        const d = daerah.find(x => x.id === duplicatePeserta.daerah_id);
+        const userHasil = hasilTes.filter(h => h.peserta_id === duplicatePeserta.id);
+        return (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full my-4 animate-in zoom-in-95 duration-300 overflow-hidden">
+              <div className="bg-amber-50 px-6 py-4 flex items-center gap-3 border-b border-amber-100">
+                <div className="p-2 bg-amber-100 rounded-full">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-display font-bold text-amber-800">Peserta Sudah Terdaftar</h3>
+                  <p className="text-sm text-amber-600">Peserta dengan nama, daerah, dan tipe yang sama sudah ada.</p>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div className="bg-gray-50 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <UserCircle className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-display font-bold text-[#171c1f]">{duplicatePeserta.nama}</div>
+                      <div className="text-xs text-gray-500">{duplicatePeserta.usia} Thn <span className="opacity-50 mx-1">•</span> {duplicatePeserta.pekerjaan}</div>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-gray-600 pt-2 border-t border-gray-200">
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-primary opacity-70" />
+                      {d?.nama || "-"} ({d?.wilayah || "-"})
+                    </div>
+                    <div className="font-mono">{duplicatePeserta.nomor_telepon}</div>
+                    <div className="col-span-2 text-xs text-gray-400">
+                      Terdaftar: {formatDate(duplicatePeserta.created_at)}
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Riwayat Tes ({userHasil.length})</h4>
+                  {userHasil.length > 0 ? (
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {userHasil.map(h => (
+                        <div key={h.id} className="flex items-center justify-between bg-gray-50 rounded-lg px-3 py-2 text-sm">
+                          <div>
+                            <div className="font-medium text-[#171c1f]">{h.snapshot_tes.nama}</div>
+                            <div className="text-xs text-gray-400">{formatDate(h.tanggal_tes)}</div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono font-bold text-[#171c1f]">{h.skor_akhir}</span>
+                            {h.is_lulus ? (
+                              <span className="flex items-center gap-1 text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">
+                                <CheckCircle className="w-3 h-3" /> {h.label_hasil}
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-1 text-xs font-semibold text-red-700 bg-red-100 px-2 py-0.5 rounded-full">
+                                <XCircle className="w-3 h-3" /> {h.label_hasil}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-400 italic bg-gray-50 rounded-lg p-3 text-center">
+                      Belum ada tes yang dilakukan.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-3">
+                <button
+                  onClick={() => setDuplicatePeserta(null)}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={doCreatePeserta}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-lg transition-colors"
+                >
+                  Tetap Tambahkan
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

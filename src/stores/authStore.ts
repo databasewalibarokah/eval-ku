@@ -11,7 +11,7 @@ interface AuthState {
   initialize: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   user: null,
   isAuthenticated: false,
   isLoading: true,
@@ -25,8 +25,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   initialize: () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
-        set({ isLoading: true });
-        // Fetch user details from public.ku_users
         supabase
           .from('ku_users')
           .select('*')
@@ -45,8 +43,11 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
 
     supabase.auth.onAuthStateChange((_event, session) => {
+      const { isAuthenticated } = get();
       if (session?.user) {
-        set({ isLoading: true });
+        if (!isAuthenticated) {
+          set({ isLoading: true });
+        }
         supabase
           .from('ku_users')
           .select('*')

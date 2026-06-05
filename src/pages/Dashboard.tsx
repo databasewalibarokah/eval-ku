@@ -21,7 +21,7 @@ export default function Dashboard() {
       <div className="flex flex-col md:flex-row items-baseline justify-between gap-4 sm:gap-6">
         <div>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-display font-extrabold tracking-tight text-[#171c1f]">Overview</h2>
-          <p className="mt-1 sm:mt-2 text-[#4f606b] font-medium text-sm sm:text-lg">Your sanctuary for insights and evaluations.</p>
+          <p className="mt-1 sm:mt-2 text-[#4f606b] font-medium text-sm sm:text-lg">Ringkasan peserta evaluasi dan seleksi.</p>
         </div>
         <div className="flex gap-4">
           <Link 
@@ -33,7 +33,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 xl:grid-cols-4 pt-2 sm:pt-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-6 sm:grid-cols-2 pt-2 sm:pt-4">
         {stats.map((stat) => (
           <div key={stat.name} className="relative overflow-hidden solid-card p-4 sm:p-6 sm:p-8 group hover:-translate-y-1 transition-transform duration-300">
             <dt>

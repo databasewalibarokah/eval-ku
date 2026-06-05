@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppStore } from "../../stores/appStore";
-import { Search, MapPin, Calendar, Download, Trash2 } from "lucide-react";
+import { Search, MapPin, Calendar, Download, Trash2, CalendarDays } from "lucide-react";
 import ConfirmModal from "../../components/ConfirmModal";
-import { formatDateTime } from "../../lib/utils";
+import { formatDate } from "../../lib/utils";
 import * as XLSX from "xlsx";
 
 export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) {
   const { peserta, daerah, hasilTes, deletePeserta } = useAppStore();
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const handleDelete = async () => {
@@ -18,11 +20,31 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
     }
   };
 
-  const filtered = peserta.filter(p => 
-    p.tipe_peserta === tipe && 
-    (p.nama.toLowerCase().includes(search.toLowerCase()) || 
-     daerah.find(d => d.id === p.daerah_id)?.nama.toLowerCase().includes(search.toLowerCase()))
-  );
+  const filtered = peserta.filter(p => {
+    if (p.tipe_peserta !== tipe) return false;
+    
+    const matchSearch = p.nama.toLowerCase().includes(search.toLowerCase()) || 
+      daerah.find(d => d.id === p.daerah_id)?.nama.toLowerCase().includes(search.toLowerCase());
+    
+    if (!matchSearch) return false;
+    
+    if (dateFrom || dateTo) {
+      const created = new Date(p.created_at);
+      created.setHours(0, 0, 0, 0);
+      if (dateFrom) {
+        const from = new Date(dateFrom);
+        from.setHours(0, 0, 0, 0);
+        if (created < from) return false;
+      }
+      if (dateTo) {
+        const to = new Date(dateTo);
+        to.setHours(23, 59, 59, 999);
+        if (created > to) return false;
+      }
+    }
+    
+    return true;
+  });
 
   const handleExport = () => {
     // Collect specific data mapped for Excel mapping
@@ -32,6 +54,11 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
       // Calculate avg score or get results if needed
       const userHasil = hasilTes.filter(h => h.peserta_id === p.id);
       const testNames = userHasil.map(h => `${h.snapshot_tes.nama}: ${h.skor_akhir} (${h.label_hasil})`).join(" | ");
+      const hasilAkhir = userHasil.length > 0
+        ? (userHasil.every(h => h.is_lulus)
+          ? (tipe === "evaluasi" ? "Layak Diberi SK" : "Lulus")
+          : (tipe === "evaluasi" ? "Tidak Layak Diberi SK" : "Tidak Lulus"))
+        : "Belum ada hasil";
 
       return {
         "Nama Peserta": p.nama,
@@ -40,8 +67,9 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
         "Nomor Telepon": p.nomor_telepon,
         "Daerah": d?.nama || "-",
         "Wilayah": d?.wilayah || "-",
-        "Tanggal Daftar": formatDateTime(p.created_at).split(" ")[0],
-        "Hasil Tes": testNames || "Belum ada hasil",
+        "Tanggal Daftar": formatDate(p.created_at),
+        "Hasil Tes": testNames,
+        "Hasil Akhir": hasilAkhir,
       };
     });
 
@@ -66,18 +94,53 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
         </button>
       </div>
 
-      <div className="glass-card p-4 flex gap-4">
-        <div className="relative flex-1">
+      <div className="glass-card p-4 flex flex-col sm:flex-row gap-3 sm:gap-2">
+        <div className="relative flex-1 min-w-0">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
           </div>
           <input
             type="text"
-            className="input-field pl-11"
+            className="input-field pl-11 w-full"
             placeholder="Cari berdasarkan nama atau daerah..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <CalendarDays className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="date"
+              className="input-field pl-9 text-sm"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              title="Tanggal mulai"
+            />
+          </div>
+          <span className="text-gray-400 text-sm">s/d</span>
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <CalendarDays className="h-4 w-4 text-gray-400" />
+            </div>
+            <input
+              type="date"
+              className="input-field pl-9 text-sm"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              title="Tanggal akhir"
+            />
+          </div>
+          {(search || dateFrom || dateTo) && (
+            <button
+              onClick={() => { setSearch(""); setDateFrom(""); setDateTo(""); }}
+              className="text-xs text-gray-500 hover:text-red-500 px-2 py-1 rounded transition-colors whitespace-nowrap"
+            >
+              Reset
+            </button>
+          )}
         </div>
       </div>
 
@@ -115,7 +178,7 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
                     <td className="px-6 py-5 whitespace-nowrap">
                       <div className="flex items-center text-sm text-[#171c1f]">
                         <Calendar className="w-4 h-4 mr-2 text-primary opacity-80" />
-                        {formatDateTime(p.created_at).split(" ")[0]}
+                        {formatDate(p.created_at)}
                       </div>
                     </td>
                     <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
@@ -168,7 +231,7 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
                   <div className="flex items-center justify-between pt-2">
                     <div className="flex items-center text-xs text-gray-500">
                       <Calendar className="w-3.5 h-3.5 mr-1.5 text-primary opacity-80" />
-                      {formatDateTime(p.created_at).split(" ")[0]}
+                      {formatDate(p.created_at)}
                     </div>
                     <div className="flex gap-2">
                       <Link to={`/peserta/detail/${p.id}`} className="btn-secondary py-1 px-3 text-xs w-auto">
