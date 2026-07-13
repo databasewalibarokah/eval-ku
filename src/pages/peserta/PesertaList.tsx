@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppStore } from "../../stores/appStore";
-import { Search, MapPin, Calendar, Download, Trash2, CalendarDays } from "lucide-react";
-import ConfirmModal from "../../components/ConfirmModal";
+import { titleCase } from "title-case";
 import { formatDate } from "../../lib/utils";
+import ConfirmModal from "../../components/ConfirmModal";
+import { Search, MapPin, Calendar, Download, Trash2, CalendarDays } from "lucide-react";
 import * as XLSX from "xlsx";
 
 export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) {
@@ -47,20 +48,21 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
   });
 
   const handleExport = () => {
+    const testColumns = new Set<string>();
+
     // Collect specific data mapped for Excel mapping
     const dataToExport = filtered.map(p => {
       const d = daerah.find(x => x.id === p.daerah_id);
       
       // Calculate avg score or get results if needed
       const userHasil = hasilTes.filter(h => h.peserta_id === p.id);
-      const testNames = userHasil.map(h => `${h.snapshot_tes.nama}: ${h.skor_akhir} (${h.label_hasil})`).join(" | ");
       const hasilAkhir = userHasil.length > 0
         ? (userHasil.every(h => h.is_lulus)
           ? (tipe === "evaluasi" ? "Layak Diberi SK" : "Lulus")
           : (tipe === "evaluasi" ? "Tidak Layak Diberi SK" : "Tidak Lulus"))
         : "Belum ada hasil";
 
-      return {
+      const exportRow: Record<string, any> = {
         "Nama Peserta": p.nama,
         "Usia": p.usia,
         "Pekerjaan": p.pekerjaan,
@@ -68,12 +70,32 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
         "Daerah": d?.nama || "-",
         "Wilayah": d?.wilayah || "-",
         "Tanggal Daftar": formatDate(p.created_at),
-        "Hasil Tes": testNames,
-        "Hasil Akhir": hasilAkhir,
       };
+
+      userHasil.forEach(h => {
+        const colName = `Tes ${titleCase(h.snapshot_tes.nama.toLowerCase())}`;
+        testColumns.add(colName);
+        exportRow[colName] = `${h.skor_akhir} (${h.label_hasil})`;
+      });
+
+      exportRow["Hasil Akhir"] = hasilAkhir;
+
+      return exportRow;
     });
 
-    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const header = [
+      "Nama Peserta",
+      "Usia",
+      "Pekerjaan",
+      "Nomor Telepon",
+      "Daerah",
+      "Wilayah",
+      "Tanggal Daftar",
+      ...Array.from(testColumns),
+      "Hasil Akhir"
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport, { header });
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, `Peserta_${tipe}`);
 
