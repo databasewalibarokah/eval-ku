@@ -4,7 +4,7 @@ import { useAppStore } from "../../stores/appStore";
 import { useAuthStore } from "../../stores/authStore";
 import { Peserta } from "../../types";
 import { Search, Plus, UserCircle, MapPin, CalendarDays, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
-import { formatDate } from "../../lib/utils";
+import { formatDate, normalizePhone } from "../../lib/utils";
 
 export default function PilihPeserta() {
   const { tipe } = useParams<{ tipe: string }>();
@@ -17,6 +17,7 @@ export default function PilihPeserta() {
   const [dateTo, setDateTo] = useState("");
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [duplicatePeserta, setDuplicatePeserta] = useState<Peserta | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   // Filter peserta by tipe and search
   const filteredPeserta = peserta.filter(p => {
@@ -60,10 +61,12 @@ export default function PilihPeserta() {
     e.preventDefault();
     if (!user) return;
 
+    const phone = normalizePhone(formData.nomor_telepon);
     const existing = peserta.find(p =>
-      p.nama.toLowerCase() === formData.nama.toLowerCase().trim() &&
-      p.daerah_id === formData.daerah_id &&
-      p.tipe_peserta === tipe
+      p.tipe_peserta === tipe && (
+        (p.nama.toLowerCase().trim() === formData.nama.toLowerCase().trim() && p.daerah_id === formData.daerah_id) ||
+        (phone !== "" && normalizePhone(p.nomor_telepon) === phone)
+      )
     );
 
     if (existing) {
@@ -75,7 +78,8 @@ export default function PilihPeserta() {
   };
 
   const doCreatePeserta = async () => {
-    if (!user) return;
+    if (!user || isSaving) return;
+    setIsSaving(true);
 
     const newP = await addPeserta({
       nama: formData.nama.trim(),
@@ -88,6 +92,7 @@ export default function PilihPeserta() {
       created_by: user.id
     });
     
+    setIsSaving(false);
     setIsNewModalOpen(false);
     setDuplicatePeserta(null);
     if(newP) {
@@ -291,7 +296,7 @@ export default function PilihPeserta() {
 
               <div className="flex justify-end space-x-4 pt-8 border-t border-[#bdc8cb]/30">
                 <button type="button" onClick={() => setIsNewModalOpen(false)} className="btn-secondary">Batal</button>
-                <button type="submit" className="btn-primary">Lanjut ke Tes</button>
+                <button type="submit" disabled={isSaving} className="btn-primary disabled:opacity-60">{isSaving ? "Menyimpan..." : "Lanjut ke Tes"}</button>
               </div>
             </form>
           </div>
@@ -311,7 +316,7 @@ export default function PilihPeserta() {
                 </div>
                 <div>
                   <h3 className="text-lg font-display font-bold text-amber-800">Peserta Sudah Terdaftar</h3>
-                  <p className="text-sm text-amber-600">Peserta dengan nama, daerah, dan tipe yang sama sudah ada.</p>
+                  <p className="text-sm text-amber-600">Peserta dengan nama dan daerah, atau nomor telepon yang sama sudah ada. Gunakan peserta ini untuk melanjutkan tes berikutnya.</p>
                 </div>
               </div>
 
@@ -380,9 +385,16 @@ export default function PilihPeserta() {
                 </button>
                 <button
                   onClick={doCreatePeserta}
+                  disabled={isSaving}
+                  className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-60"
+                >
+                  {isSaving ? "Menyimpan..." : "Tetap Tambahkan"}
+                </button>
+                <button
+                  onClick={() => navigate(`/menguji/peserta/${duplicatePeserta.id}`)}
                   className="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-hover rounded-lg transition-colors"
                 >
-                  Tetap Tambahkan
+                  Gunakan Peserta Ini
                 </button>
               </div>
             </div>

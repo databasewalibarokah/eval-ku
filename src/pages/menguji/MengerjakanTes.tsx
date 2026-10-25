@@ -17,6 +17,7 @@ export default function MengerjakanTes() {
   
   const [jawaban, setJawaban] = useState<Record<string, JawabanItem>>({});
   const [catatanAkhir, setCatatanAkhir] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!p || !t || !user) {
     return <div className="p-8 text-center">Data tidak valid</div>;
@@ -55,6 +56,7 @@ export default function MengerjakanTes() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     
     if (Object.keys(jawaban).length !== t.pertanyaan.length) {
       return alert("Harap jawab semua pertanyaan!");
@@ -63,6 +65,7 @@ export default function MengerjakanTes() {
     const skor = calculateScore();
     const is_lulus = skor >= t.batas_kelulusan;
 
+    setIsSubmitting(true);
     await addHasilTes({
       peserta_id: p.id,
       tipe_tes: t.tipe,
@@ -167,9 +170,9 @@ export default function MengerjakanTes() {
           <div className="fixed bottom-0 left-0 right-0 p-3 sm:p-4 lg:p-6 bg-white/80 backdrop-blur-[24px] border-t border-[#bdc8cb]/30 flex justify-end items-center z-40 lg:pl-64 shadow-[0_-8px_32px_rgba(0,96,100,0.06)]">
              <div className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
                <span className="text-xs sm:text-sm font-bold text-gray-500 font-mono tracking-tight">Pastikan semua poin penilaian telah terisi</span>
-               <button type="submit" className="btn-primary w-full sm:w-auto py-3 px-8 text-base">
+               <button type="submit" disabled={isSubmitting} className="btn-primary w-full sm:w-auto py-3 px-8 text-base disabled:opacity-60">
                  <Save className="w-5 h-5 mr-2"/>
-                 Kirim Hasil Penilaian
+                 {isSubmitting ? "Mengirim..." : "Kirim Hasil Penilaian"}
                </button>
              </div>
           </div>

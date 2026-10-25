@@ -2,13 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppStore } from "../../stores/appStore";
 import { titleCase } from "title-case";
-import { formatDate } from "../../lib/utils";
+import { formatDate, isInDateRange } from "../../lib/utils";
+import { HasilTes, Peserta } from "../../types";
 import ConfirmModal from "../../components/ConfirmModal";
 import { Search, MapPin, Calendar, Download, Trash2, CalendarDays } from "lucide-react";
 import * as XLSX from "xlsx";
 
 export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) {
-  const { peserta, daerah, hasilTes, deletePeserta } = useAppStore();
+  const { peserta, daerah, tes, hasilTes, deletePeserta } = useAppStore();
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
@@ -21,6 +22,8 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
     }
   };
 
+  // Date filter follows test dates, so a participant tested across several months
+  // shows up in every month they were tested. Participants without tests fall back to registration date.
   const filtered = peserta.filter(p => {
     if (p.tipe_peserta !== tipe) return false;
     
@@ -30,37 +33,56 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
     if (!matchSearch) return false;
     
     if (dateFrom || dateTo) {
-      const created = new Date(p.created_at);
-      created.setHours(0, 0, 0, 0);
-      if (dateFrom) {
-        const from = new Date(dateFrom);
-        from.setHours(0, 0, 0, 0);
-        if (created < from) return false;
+      const userHasil = hasilTes.filter(h => h.peserta_id === p.id);
+      if (userHasil.length > 0) {
+        return userHasil.some(h => isInDateRange(h.tanggal_tes, dateFrom, dateTo));
       }
-      if (dateTo) {
-        const to = new Date(dateTo);
-        to.setHours(23, 59, 59, 999);
-        if (created > to) return false;
-      }
+      return isInDateRange(p.created_at, dateFrom, dateTo);
     }
     
     return true;
   });
 
   const handleExport = () => {
-    const testColumns = new Set<string>();
+    const labelLulus = tipe === "evaluasi" ? "Layak Diberi SK" : "Lulus";
+    const labelTidakLulus = tipe === "evaluasi" ? "Tidak Layak Diberi SK" : "Tidak Lulus";
+    const activeTes = tes.filter(t => t.tipe === tipe && t.is_active).sort((a, b) => a.order - b.order);
 
-    // Collect specific data mapped for Excel mapping
-    const dataToExport = filtered.map(p => {
+    // The same person may have been registered more than once (same name, daerah and tipe),
+    // with each test recorded under a different record. Merge them into one row per person.
+    const personKey = (p: Peserta) => `${p.nama.trim().toLowerCase()}|${p.daerah_id}`;
+    const groups = new Map<string, Peserta[]>();
+    peserta.filter(p => p.tipe_peserta === tipe).forEach(p => {
+      const key = personKey(p);
+      groups.set(key, [...(groups.get(key) || []), p]);
+    });
+    const exportKeys = Array.from(new Set(filtered.map(personKey)));
+
+    const testColumns = new Map<string, number>();
+
+    const dataToExport = exportKeys.map(key => {
+      const records = [...groups.get(key)!].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      const p = records[0];
       const d = daerah.find(x => x.id === p.daerah_id);
-      
-      // Calculate avg score or get results if needed
-      const userHasil = hasilTes.filter(h => h.peserta_id === p.id);
-      const hasilAkhir = userHasil.length > 0
-        ? (userHasil.every(h => h.is_lulus)
-          ? (tipe === "evaluasi" ? "Layak Diberi SK" : "Lulus")
-          : (tipe === "evaluasi" ? "Tidak Layak Diberi SK" : "Tidak Lulus"))
-        : "Belum ada hasil";
+      const recordIds = new Set(records.map(r => r.id));
+
+      // Keep only the latest attempt of each test
+      const latestByTes = new Map<string, HasilTes>();
+      hasilTes
+        .filter(h => recordIds.has(h.peserta_id))
+        .forEach(h => {
+          const prev = latestByTes.get(h.tes_id);
+          if (!prev || new Date(h.tanggal_tes) > new Date(prev.tanggal_tes)) latestByTes.set(h.tes_id, h);
+        });
+      const userHasil = Array.from(latestByTes.values());
+
+      // Every active test must be taken and passed; any failure makes the final result a failure
+      const requiredHasil = activeTes.map(t => latestByTes.get(t.id));
+      let hasilAkhir: string;
+      if (userHasil.length === 0) hasilAkhir = "Belum ada hasil";
+      else if (userHasil.some(h => !h.is_lulus)) hasilAkhir = labelTidakLulus;
+      else if (requiredHasil.some(h => !h)) hasilAkhir = "Belum Lengkap";
+      else hasilAkhir = labelLulus;
 
       const exportRow: Record<string, any> = {
         "Nama Peserta": p.nama,
@@ -74,14 +96,20 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
 
       userHasil.forEach(h => {
         const colName = `Tes ${titleCase(h.snapshot_tes.nama.toLowerCase())}`;
-        testColumns.add(colName);
+        testColumns.set(colName, h.snapshot_tes.order);
         exportRow[colName] = `${h.skor_akhir} (${h.label_hasil})`;
+        exportRow[`Tanggal ${colName}`] = formatDate(h.tanggal_tes);
       });
 
       exportRow["Hasil Akhir"] = hasilAkhir;
 
       return exportRow;
     });
+
+    activeTes.forEach(t => testColumns.set(`Tes ${titleCase(t.nama.toLowerCase())}`, t.order));
+    const sortedTestColumns = Array.from(testColumns.entries())
+      .sort((a, b) => a[1] - b[1])
+      .flatMap(([colName]) => [colName, `Tanggal ${colName}`]);
 
     const header = [
       "Nama Peserta",
@@ -91,7 +119,7 @@ export default function PesertaList({ tipe }: { tipe: "evaluasi" | "seleksi" }) 
       "Daerah",
       "Wilayah",
       "Tanggal Daftar",
-      ...Array.from(testColumns),
+      ...sortedTestColumns,
       "Hasil Akhir"
     ];
 

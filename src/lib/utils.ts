@@ -22,3 +22,24 @@ export function formatDateTime(timestamp: number | string) {
   const mi = String(d.getMinutes()).padStart(2, "0");
   return `${dd}/${mm}/${yyyy} ${hh}:${mi}`;
 }
+
+// dateFrom / dateTo are "YYYY-MM-DD" strings from <input type="date">; empty means unbounded
+export function isInDateRange(timestamp: number | string, dateFrom: string, dateTo: string) {
+  const d = new Date(timestamp);
+  d.setHours(0, 0, 0, 0);
+  if (dateFrom) {
+    const from = new Date(dateFrom);
+    from.setHours(0, 0, 0, 0);
+    if (d < from) return false;
+  }
+  if (dateTo) {
+    const to = new Date(dateTo);
+    to.setHours(23, 59, 59, 999);
+    if (d > to) return false;
+  }
+  return true;
+}
+
+export function normalizePhone(phone: string) {
+  return phone.replace(/\D/g, "");
+}
